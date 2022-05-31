@@ -18,19 +18,75 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true }) // Connectio
   .then(client => {
     console.log('Connected to Database')
     const db = client.db('robin-hood-quotes')           // name your db cloud
+    const quotesCollection = db.collection('quotes')    // name your db collection
     // Make sure you place body-parser before your CRUD handlers!
-    app.use(bodyParser.urlencoded({extended: true}))    
-    // We normally abbreviate `request` to `req` and `response` to `res`. [  app.get(endpoint, callback)  ]
-    app.get('/', (req, res) => {            // Makes a request to the server to 
-    res.sendFile(__dirname + '/index.html')    
+    app.set('view engine', 'ejs')                       // tells express we're using EJS as the template engine
+
+    app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(express.static('public'))           // Use public/main.js
+    app.use(bodyParser.json())                  // Teach it to read json
+
+    //CRUD - READ
+    // [  app.get(endpoint, callback)  ]
+    app.get('/', (req, res) => {                 // Makes a request to the server to return something back to us 
+      quotesCollection.find().toArray()         // Returns an array of all the db results so far.
+        .then(results => {
+          console.log(results)
+          res.render('index.ejs', { quotes: results })             // render results to this 'index' file
+        })
+        .catch(error => console.error(error))
     })
-    app.post('/quotes', (req,res) => {          // [  app.post(endpoint, callback)  ] 
-        console.log(req.body)
+    
+    //CRUD - CREATE
+    app.post('/quotes', (req, res) => {          // [  app.post(endpoint, callback)  ] 
+      quotesCollection.insertOne(req.body)    // promise to log stuff into the db collection
+        .then(result => {
+          console.log(result)
+          res.redirect('/')                   // Submitted quote and returned to home so you can enter another
+        })
+        .catch(error => console.error(error))
     })
-    app.listen(3000, function() {
-        console.log('listening on 3000')
+
+    //CRUD - UPDATE
+    app.put('/quotes', (req, res) => {
+      quotesCollection.findOneAndUpdate(    // Let's us find and change one item in the database
+        { name: 'Robin Hood' },
+        {
+          $set: {
+            name: req.body.name,
+            quote: req.body.quote
+          }
+        },
+        {
+          upsert: true
+        }
+      )
+        .then(result => {
+          console.log(result)
+          res.json('Success')
+        })
+        .catch(error => console.error(error))
     })
-})
+
+    //CRUD - DELETE
+    app.delete('/quotes', (req,res) => {
+      quotesCollection.deleteOne(
+        { name: req.body.name },
+      )
+      .then(result => {
+        if (result.deletedCount === 0) {
+          return res.json('No quote to delete')
+        }
+        res.json("Deleted Prince John's quote")
+      })
+      .catch(error => console.error(error))
+    })
+
+
+    app.listen(3000, function () {
+      console.log('listening on 3000')
+    })
+  })
   .catch(error => console.error(error))
 
 
