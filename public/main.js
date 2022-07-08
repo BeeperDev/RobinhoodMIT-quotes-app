@@ -20,7 +20,7 @@ update.addEventListener('click', _ => {         // trigger a PUT request
 })
 
 deleteButton.addEventListener('click', _ => {     //trigger a DELETE request
-    fetch('/quotes', {
+    fetch('/quotes', {                      //'/quotes' is a route for the app.delete
         method: 'delete',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

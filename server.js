@@ -30,7 +30,7 @@ MongoClient.connect(connectionString, { useUnifiedTopology: true }) // Connectio
     // [  app.get(endpoint, callback)  ]
     app.get('/', (req, res) => {                 // Makes a request to the server to return something back to us 
       quotesCollection.find().toArray()         // Returns an array of all the db results so far.
-        .then(results => {
+        .then(results => {                      // results is holding the array of quotes
           console.log(results)
           res.render('index.ejs', { quotes: results })             // render results to this 'index' file
         })

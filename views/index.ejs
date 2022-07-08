@@ -26,16 +26,11 @@
         <ul class="quotes">
             <!-- Loop through quotes -->
             <% for(var i=0; i < quotes.length; i++) {%>
-                <li class="quote">
-                    <!-- Output name from the iterated quote object -->
-                    <span>
-                        <%= quotes[i].name %>
-                    </span>:
-                    <span>
-                        <%= quotes[i].quote %>
-                    </span>
+                <li class="quote">    <!-- Output name from the iterated quote object -->
+                    <span><%= quotes[i].name %></span>:
+                    <span><%= quotes[i].quote %></span>
                 </li>
-                <% } %>
+            <% } %>
         </ul>
     </section>
 
